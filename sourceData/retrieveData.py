@@ -13,6 +13,7 @@ EXCEPTIONS = ['south-africa-and-lesotho', 'alps', 'britain-and-ireland', 'dach',
 TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
+PROCESSES = 4
 
 def pLogger(id, type, message, path=LOGBASEPATH):
     with open(path + "/" + str(id) + ".log", "a") as f:
@@ -122,6 +123,7 @@ def process_feature(feature):
     # Combined function to download and convert data
     featureID = download_feature(feature)
     filter_pbf_to_parquet(featureID)
+    return(featureID)
 
 def main():
     """
@@ -132,7 +134,7 @@ def main():
     features = data['features']
     pLogger("MASTER", "INFO", "Features: " + str(features))
 
-    with ProcessPoolExecutor() as executor:
+    with ProcessPoolExecutor(max_workers=PROCESSES) as executor:
         futures = [executor.submit(process_feature, feature) for feature in features]
         for future in as_completed(futures):
             result = future.result()
