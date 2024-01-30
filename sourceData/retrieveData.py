@@ -3,7 +3,7 @@ import geopandas as gpd
 import shutil
 from pyrosm import OSM, get_data
 from datetime import datetime
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # Constants
 PARENT_CONTINENTS = ['africa', 'antartica', 'asia', 'central-america', 'europe', 'north-america', 'south-america', 'australia-oceania']
@@ -138,7 +138,7 @@ def main():
 
     with ProcessPoolExecutor() as executor:
         futures = [executor.submit(process_feature, feature) for feature in features]
-        for future in concurrent.futures.as_completed(futures):
+        for future in as_completed(futures):
             result = future.result()
 
 if __name__ == "__main__":
