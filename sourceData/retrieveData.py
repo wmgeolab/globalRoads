@@ -14,7 +14,7 @@ OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
 
 def pLogger(id, type, message, path=LOGBASEPATH):
-    with open(path + str(id) + ".log", "a") as f:
+    with open(path + "/" + str(id) + ".log", "a") as f:
         f.write(str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + ": (" + str(type) + ") " + str(message) + "\n")
 
 def check_and_recreate_folder(folder_path):
@@ -85,7 +85,7 @@ def download_feature(feature):
     properties = feature['properties']
     urls = properties['urls']
     identifier = properties['id']
-
+    filename = identifier
     TMPPATH = TMPBASEPATH + "/" + str(identifier)
     check_and_recreate_folder(TMPPATH)
     
@@ -119,6 +119,9 @@ def download_feature(feature):
                 else:
                     fp = get_data(identifier, directory = TMPPATH)
                     osm = OSM(fp)
+    else:
+        fp = get_data(identifier, directory = TMPPATH)
+        osm = OSM(fp)
     
     return(filename)
 
@@ -133,7 +136,7 @@ def main():
     """
     data_url = "https://download.geofabrik.de/index-v1.json"
     data = fetch_data(data_url)
-    features = data['features'][0]
+    features = data['features']
     pLogger("MASTER", "INFO", "Features: " + str(features))
 
     with ProcessPoolExecutor() as executor:
