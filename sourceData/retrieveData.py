@@ -136,15 +136,10 @@ def main():
     features = data['features'][0]
     pLogger("MASTER", "INFO", "Features: " + str(features))
 
-    # Using ProcessPoolExecutor to parallelize
     with ProcessPoolExecutor() as executor:
-        # Submit all feature processing tasks to the executor
         futures = [executor.submit(process_feature, feature) for feature in features]
-
-        # Optionally, you can process the results as they are completed
         for future in concurrent.futures.as_completed(futures):
-            result = future.result()  # This would be the return value of process_feature, if any
-            # Process the result if needed
+            result = future.result()
 
 if __name__ == "__main__":
     main()
