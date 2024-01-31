@@ -126,7 +126,8 @@ def process_feature(feature):
         filter_pbf_to_parquet(featureID)
         return(featureID)
     except Exception as e:
-        pLogger("MASTER_ERROR", "CRIT", "The feature was unable to be processed" + str(feature))
+        pLogger("MASTER_ERROR", "CRIT", "The feature was unable to be processed: " + str(feature["properties"]))
+        pLogger("MASTER_ERROR", "CRIT", "E: " + str(e))
         
 
 def main():
