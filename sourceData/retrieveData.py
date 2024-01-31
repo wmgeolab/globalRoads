@@ -113,17 +113,21 @@ def download_feature(feature):
                 else:
                     fp = get_data(identifier, directory = TMPPATH)
                     osm = OSM(fp)
-    else:
-        fp = get_data(identifier, directory = TMPPATH)
-        osm = OSM(fp)
+            else:
+                fp = get_data(identifier, directory = TMPPATH)
+                osm = OSM(fp)
     
     return(filename)
 
 def process_feature(feature):
     # Combined function to download and convert data
-    featureID = download_feature(feature)
-    filter_pbf_to_parquet(featureID)
-    return(featureID)
+    try:
+        featureID = download_feature(feature)
+        filter_pbf_to_parquet(featureID)
+        return(featureID)
+    except Exception as e:
+        pLogger("MASTER_ERROR", "CRIT", "The feature was unable to be processed" + str(feature))
+        
 
 def main():
     """
