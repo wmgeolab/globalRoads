@@ -64,6 +64,7 @@ def filter_pbf_to_parquet(pbf_id):
         roadways = gpd.GeoDataFrame(roadways)
     # Write the filtered data to Parquet
     pLogger(pbf_id, "INFO", "Writing to Parquet.")
+    roadways['id'] = roadways['id'].astype(float).astype(int)
     roadways.to_parquet(parquet_file)
 
 def fetch_data(url):
