@@ -6,6 +6,7 @@ from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import traceback
+import gc
 
 # Constants
 PARENT_CONTINENTS = ['africa', 'antartica', 'asia', 'central-america', 'europe', 'north-america', 'south-america', 'australia-oceania']
@@ -66,6 +67,8 @@ def filter_pbf_to_parquet(pbf_id):
     pLogger(pbf_id, "INFO", "Writing to Parquet.")
     roadways['id'] = roadways['id'].astype(float).astype(int)
     roadways.to_parquet(parquet_file)
+    del roadways, gdf, osm
+    gc.collect()
 
 def fetch_data(url):
     """
