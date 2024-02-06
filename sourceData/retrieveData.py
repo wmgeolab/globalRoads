@@ -154,6 +154,7 @@ def main():
         futures = [executor.submit(process_feature, feature) for feature in features]
         for future in as_completed(futures):
             result = future.result()
+            pLogger("MASTER", "INFO", "Result Completed: " + str(result))
     
     print(result)
 
