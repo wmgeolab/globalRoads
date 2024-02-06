@@ -15,7 +15,7 @@ EXCEPTIONS = ['south-africa-and-lesotho', 'alps', 'britain-and-ireland', 'dach',
 TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
-PROCESSES = 4
+PROCESSES = 2
 
 def pLogger(id, type, message, path=LOGBASEPATH):
     with open(path + "/" + str(id) + ".log", "a") as f:
