@@ -5,6 +5,7 @@ from pyrosm import OSM, get_data
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
+import traceback
 
 # Constants
 PARENT_CONTINENTS = ['africa', 'antartica', 'asia', 'central-america', 'europe', 'north-america', 'south-america', 'australia-oceania']
@@ -117,18 +118,24 @@ def download_feature(feature):
                 fp = get_data(identifier, directory = TMPPATH)
                 osm = OSM(fp)
     
-    return(filename)
+        return(filename)
+    else:
+        return("PASS")
 
 def process_feature(feature):
     # Combined function to download and convert data
     try:
         featureID = download_feature(feature)
-        filter_pbf_to_parquet(featureID)
-        return(featureID)
+        if(featureID != "PASS"):
+            filter_pbf_to_parquet(featureID)
+            return([featureID,"DONE"])
+        else:
+            return([featureID,"PASS"])
     except Exception as e:
         pLogger("MASTER_ERROR", "CRIT", "The feature was unable to be processed: " + str(feature["properties"]))
         pLogger("MASTER_ERROR", "CRIT", "E: " + str(e))
-        
+        pLogger("MASTER_ERROR", "CRIT", "Trace: " + str(traceback.format_exc()))
+        return([featureID,"ERROR"])
 
 def main():
     """
@@ -143,6 +150,8 @@ def main():
         futures = [executor.submit(process_feature, feature) for feature in features]
         for future in as_completed(futures):
             result = future.result()
+    
+    print(result)
 
 if __name__ == "__main__":
     main()
