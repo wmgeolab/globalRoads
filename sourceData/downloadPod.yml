@@ -4,16 +4,16 @@ metadata:
   name: data-retrieval-osm
 spec:
   restartPolicy: Never
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: NotIn
-            values:
-            - dss
-            - d3i00.sciclone.wm.edu
+#  affinity:
+#    nodeAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        nodeSelectorTerms:
+#        - matchExpressions:
+#          - key: kubernetes.io/hostname
+#            operator: NotIn
+#            values:
+#            - dss
+#            - d3i00.sciclone.wm.edu
   volumes:
     - name: home-volume
       persistentVolumeClaim:
