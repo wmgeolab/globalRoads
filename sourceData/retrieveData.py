@@ -160,8 +160,8 @@ def main():
     pLogger("MASTER", "INFO", "Features: " + str(features))
 
     for i in features:
-        process_feature(i)
-        pLogger("MASTER", "INFO", "Result Completed: " + str(result))
+        output = process_feature(i)
+        pLogger("MASTER", "INFO", "Result Completed: " + str(output))
 
     # with ProcessPoolExecutor(max_workers=PROCESSES) as executor:
     #     futures = [executor.submit(process_feature, feature) for feature in features]
