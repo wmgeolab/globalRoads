@@ -129,12 +129,21 @@ def download_feature(feature):
 def process_feature(feature):
     # Combined function to download and convert data
     try:
-        featureID = download_feature(feature)
-        if(featureID != "PASS"):
-            filter_pbf_to_parquet(featureID)
-            return([featureID,"DONE"])
+        properties = feature['properties']
+        pbf_id = properties['id']
+        parquet_file = OUTPUTPATH + "/" + str(pbf_id) + ".parquet"
+        if os.path.exists(parquet_file):
+            featureID = download_feature(feature)
+            if(featureID != "PASS"):
+                filter_pbf_to_parquet(featureID)
+                pLogger("MASTER", "INFO", str(featureID) + " DONE.")
+                return([featureID,"DONE"])
+            else:
+                pLogger("MASTER", "INFO", str(featureID) + " PASS.")
+                return([featureID,"PASS"])
         else:
-            return([featureID,"PASS"])
+            pLogger("MASTER", "INFO", str(pbf_id) + " already exists. Skipping.")
+            return([pbf_id, "ALREADY EXISTS"])
     except Exception as e:
         pLogger("MASTER_ERROR", "CRIT", "The feature was unable to be processed: " + str(feature["properties"]))
         pLogger("MASTER_ERROR", "CRIT", "E: " + str(e))

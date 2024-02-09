@@ -23,8 +23,8 @@ spec:
       image: "condaforge/mambaforge"
       resources:
         requests:
-          memory: "128Gi"
-          cpu: "16"
+          memory: "256Gi"
+          cpu: "4"
       volumeMounts:
         - name: home-volume
           mountPath: /kube/home/
