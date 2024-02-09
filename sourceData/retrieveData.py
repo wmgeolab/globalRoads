@@ -141,8 +141,8 @@ def main():
     Main function to orchestrate the fetching and processing of data.
     """
     for url in LINKS:
-        jobID = i.split("/")[3].split(".")[0].split("-")[0]
-        pLogger("MASTER", "INFO", "Processing: " + str(i))
+        jobID = url.split("/")[3].split(".")[0].split("-")[0]
+        pLogger("MASTER", "INFO", "Processing: " + str(url))
         output = process_file(url, jobID)
         pLogger("MASTER", "INFO", "Result Completed: " + str(output))
         del output
