@@ -23,7 +23,7 @@ spec:
       image: "condaforge/mambaforge"
       resources:
         requests:
-          memory: "256Gi"
+          memory: "128Gi"
           cpu: "4"
       volumeMounts:
         - name: home-volume

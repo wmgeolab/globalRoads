@@ -15,7 +15,7 @@ EXCEPTIONS = ['south-africa-and-lesotho', 'alps', 'britain-and-ireland', 'dach',
 TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
-PROCESSES = 2
+PROCESSES = 1
 
 def pLogger(id, type, message, path=LOGBASEPATH):
     with open(path + "/" + str(id) + ".log", "a") as f:
@@ -159,11 +159,15 @@ def main():
     features = data['features']
     pLogger("MASTER", "INFO", "Features: " + str(features))
 
-    with ProcessPoolExecutor(max_workers=PROCESSES) as executor:
-        futures = [executor.submit(process_feature, feature) for feature in features]
-        for future in as_completed(futures):
-            result = future.result()
-            pLogger("MASTER", "INFO", "Result Completed: " + str(result))
+    for i in features:
+        process_feature(i)
+        pLogger("MASTER", "INFO", "Result Completed: " + str(result))
+
+    # with ProcessPoolExecutor(max_workers=PROCESSES) as executor:
+    #     futures = [executor.submit(process_feature, feature) for feature in features]
+    #     for future in as_completed(futures):
+    #         result = future.result()
+    #         pLogger("MASTER", "INFO", "Result Completed: " + str(result))
     
     print(result)
 
