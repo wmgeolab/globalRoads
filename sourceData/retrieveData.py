@@ -125,7 +125,7 @@ def process_file(url, jobID):
             
             if(downloadOutcome != "FAIL"):
                 filter_pbf_to_parquet(jobID)
-                pLogger("MASTER", "INFO", str(featureID) + " DONE.")
+                pLogger("MASTER", "INFO", str(jobID) + " DONE.")
                 return([jobID,"DONE"])
             else:
                 pLogger("MASTER_ERROR", "CRIT", "Download failed for: " + str(jobID) + " with URL: " + str(url))
