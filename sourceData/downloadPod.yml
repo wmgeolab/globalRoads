@@ -14,6 +14,7 @@ spec:
             values:
             - dss
             - d3i00.sciclone.wm.edu
+            - w07.geo.sciclone.wm.edu
   volumes:
     - name: home-volume
       persistentVolumeClaim:
