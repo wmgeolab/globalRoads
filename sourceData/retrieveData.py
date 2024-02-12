@@ -52,9 +52,11 @@ def filter_pbf_to_parquet(jobID):
     """
 
     pLogger(jobID, "INFO", "Beginning filtering and conversion to Parquet file.")
-    TMPPATH = TMPBASEPATH + "/" + str(jobID) + ".osm.pbf"
+    
+    TMPPATH = TMPBASEPATH + "/" + str(jobID)
+    FILEPATH = TMPPATH + "/" + str(jobID) + ".osm.pbf"
 
-    pLogger(jobID, "INFO", "TMPPATH: " + str(TMPPATH))
+    pLogger(jobID, "INFO", "FILEPATH: " + str(FILEPATH))
     parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
     pLogger(jobID, "INFO", "Parquet Path: " + str(parquet_file))
 
@@ -62,7 +64,7 @@ def filter_pbf_to_parquet(jobID):
     roads_subset = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'residential', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link', 'living_street','track']
     
     # Initialize the OSM object and read the PBF file
-    osm = OSM(TMPPATH)
+    osm = OSM(FILEPATH)
 
     # Get the data for a specific layer, here 'driving'
     pLogger(jobID, "INFO", "Fetching driving network data from PBF.")
@@ -92,7 +94,8 @@ def download_feature(url, jobID):
     """
     Downloads a layer from OSM.
     """
-    TMPPATH = TMPBASEPATH + "/" + str(jobID) + ".osm.pbf"
+    TMPPATH = TMPBASEPATH + "/" + str(jobID)
+    FILEPATH = TMPPATH + "/" + str(jobID) + ".osm.pbf"
     check_and_recreate_folder(TMPPATH)
     
     try:
@@ -101,7 +104,7 @@ def download_feature(url, jobID):
         # Check if the request was successful
         if response.status_code == 200:
             # Open a local file in binary write mode
-            with open(TMPPATH, 'wb') as file:
+            with open(FILEPATH, 'wb') as file:
                 # Write the content of the response to the file
                 file.write(response.content)
             pLogger(jobID, "INFO", "File downloaded.")
