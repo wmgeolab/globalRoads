@@ -68,7 +68,8 @@ def filter_pbf_to_parquet(jobID):
 
     # Get the data for a specific layer, here 'driving'
     pLogger(jobID, "INFO", "Fetching driving network data from PBF.")
-    gdf = osm.get_data_by_custom_criteria(custom_filter={'highway': True})
+    #gdf = osm.get_data_by_custom_criteria(custom_filter={'highway': True})
+    gdf = osm.get_network(network_type="driving")
     # Filter the GeoDataFrame based on the roads subset
     pLogger(jobID,"INFO","Filtering by road type.")
     roadways = gdf.loc[gdf['highway'].isin(roads_subset)]
