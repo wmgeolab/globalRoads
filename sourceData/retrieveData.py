@@ -21,6 +21,10 @@ LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf",
        "https://download.geofabrik.de/south-america-latest.osm.pbf"
       ]
 
+#Debug
+LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf"
+      ]
+
 TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
@@ -45,6 +49,18 @@ def check_and_recreate_folder(folder_path):
     # Create the folder
     os.makedirs(folder_path)
 
+def convertToGeoJSON(jobID):
+    TMPPATH = TMPBASEPATH + "/" + str(jobID)
+    FILEPATH = TMPPATH + "/" + str(jobID) + ".geojson"
+    pbfInput = TMPPATH + "/" + str(jobID) + ".osm.pbf"
+
+    if os.path.isfile(FILEPATH):
+        os.remove(FILEPATH)
+    command = 'ogr2ogr -f GeoJSON ' + FILEPATH + " " + pbfInput + " lines"
+    pLogger(jobID, "INFO", "Preparing to convert to geoJSON: " + str(command))
+    os.system(command)
+    pLogger(jobID, "INFO", "geoJSON Conversion Successful")
+
 def filter_pbf_to_parquet(jobID):
     """
     Converts a PBF file to a Parquet file using GeoPandas, with a filtering step
@@ -68,8 +84,8 @@ def filter_pbf_to_parquet(jobID):
 
     # Get the data for a specific layer, here 'driving'
     pLogger(jobID, "INFO", "Fetching driving network data from PBF.")
-    #gdf = osm.get_data_by_custom_criteria(custom_filter={'highway': True})
-    gdf = osm.get_network(network_type="driving")
+    gdf = osm.get_data_by_custom_criteria(custom_filter={'highway': True})
+    #gdf = osm.get_network(network_type="driving", reatin_all=True)
     # Filter the GeoDataFrame based on the roads subset
     pLogger(jobID,"INFO","Filtering by road type.")
     roadways = gdf.loc[gdf['highway'].isin(roads_subset)]
@@ -83,6 +99,23 @@ def filter_pbf_to_parquet(jobID):
     roadways.to_parquet(parquet_file)
     del roadways, gdf, osm
     gc.collect()
+
+def filtergeoJson_createParquet(jobID):
+    try:
+        parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
+        pLogger(jobID, "INFO", "Beginning geoJSON-based Filtering")
+        geoJSONPath = TMPPATH + "/" + str(jobID) + ".geojson"
+
+        jsonOSM = gpd.read_file(geoJSONPath)
+        pLogger(jobID, "INFO", "geoJSON Loaded, moving into filtering.")
+        roadsSubset = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'residential', 'motorway_link', 'trunk_link',
+                    'primary_link', 'secondary_link', 'tertiary_link', 'living_street', 'track']
+
+        roadways = jsonOSM.loc[jsonOSM['highway'].isin(roadsSubset)]
+        pLogger(jobID, "INFO", "geoJSON filtered, saving as Parquet.")
+        roadways.to_parquet(parquet_file)
+    except Exception as e:
+        pLogger(jobID, "ERROR", str(e))
 
 def fetch_data(url):
     """
@@ -125,7 +158,9 @@ def process_file(url, jobID):
             downloadOutcome = download_feature(url, jobID)
             
             if(downloadOutcome != "FAIL"):
-                filter_pbf_to_parquet(jobID)
+                convertToGeoJSON(jobID)
+                pLogger("MASTER", "INFO", str(jobID) + " master loop moving into filtering.")
+                filtergeoJson_createParquet(jobID)
                 pLogger("MASTER", "INFO", str(jobID) + " DONE.")
                 return([jobID,"DONE"])
             else:
