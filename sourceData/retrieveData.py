@@ -22,8 +22,7 @@ LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf",
       ]
 
 #Debug
-LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf"
-      ]
+#LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf"]
 
 TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
