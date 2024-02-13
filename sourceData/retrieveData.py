@@ -1,7 +1,6 @@
 import requests
 import geopandas as gpd
 import shutil
-from pyrosm import OSM, get_data
 from datetime import datetime, timedelta
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
@@ -28,7 +27,7 @@ TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
 PROCESSES = 1
-#How many days before we try to redownload the OSM data?
+#How many days before we try to redownload the OSM data and process the results?
 STALE_DAYS = 3
 
 def pLogger(id, type, message, path=LOGBASEPATH):
@@ -62,51 +61,18 @@ def convertToGeoJSON(jobID):
     os.system(command)
     pLogger(jobID, "INFO", "geoJSON Conversion Successful")
 
-def filter_pbf_to_parquet(jobID):
-    """
-    Converts a PBF file to a Parquet file using GeoPandas, with a filtering step
-    for specific road types.
-    """
-
-    pLogger(jobID, "INFO", "Beginning filtering and conversion to Parquet file.")
-    
-    TMPPATH = TMPBASEPATH + "/" + str(jobID)
-    FILEPATH = TMPPATH + "/" + str(jobID) + ".osm.pbf"
-
-    pLogger(jobID, "INFO", "FILEPATH: " + str(FILEPATH))
-    parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
-    pLogger(jobID, "INFO", "Parquet Path: " + str(parquet_file))
-
-    # Define the subset of road types to include
-    roads_subset = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'residential', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link', 'living_street','track']
-    
-    # Initialize the OSM object and read the PBF file
-    osm = OSM(FILEPATH)
-
-    # Get the data for a specific layer, here 'driving'
-    pLogger(jobID, "INFO", "Fetching driving network data from PBF.")
-    gdf = osm.get_data_by_custom_criteria(custom_filter={'highway': True})
-    #gdf = osm.get_network(network_type="driving", reatin_all=True)
-    # Filter the GeoDataFrame based on the roads subset
-    pLogger(jobID,"INFO","Filtering by road type.")
-    roadways = gdf.loc[gdf['highway'].isin(roads_subset)]
-    # Convert to GeoDataFrame if it's not already
-    if not isinstance(roadways, gpd.GeoDataFrame):
-        pLogger(jobID, "INFO", "Convert to GDF.")
-        roadways = gpd.GeoDataFrame(roadways)
-    # Write the filtered data to Parquet
-    pLogger(jobID, "INFO", "Writing to Parquet.")
-    roadways['id'] = roadways['id'].astype(float).astype(int)
-    roadways.to_parquet(parquet_file)
-    del roadways, gdf, osm
-    gc.collect()
-
 def filtergeoJson_createParquet(jobID):
     try:
         parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
         pLogger(jobID, "INFO", "Beginning geoJSON-based Filtering")
         TMPPATH = TMPBASEPATH + "/" + str(jobID)
         geoJSONPath = TMPPATH + "/" + str(jobID) + ".geojson"
+
+        if os.path.exists(parquet_file):
+            file_mod_time = datetime.fromtimestamp(os.path.getmtime(parquet_file))
+            if datetime.now() - file_mod_time < timedelta(days=STALE_DAYS):
+                pLogger(jobID, "INFO", "Parquet file is up-to-date. Skipping filtering and creation.")
+                return "SKIP"
 
         jsonOSM = gpd.read_file(geoJSONPath)
         pLogger(jobID, "INFO", "geoJSON Loaded, moving into filtering.")
