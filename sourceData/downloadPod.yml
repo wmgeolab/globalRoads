@@ -24,6 +24,7 @@ spec:
       image: "condaforge/mambaforge"
       resources:
         requests:
+          ephemeral-storage: "50Gi"
           memory: "128Gi"
           cpu: "4"
       volumeMounts:
