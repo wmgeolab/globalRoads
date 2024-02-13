@@ -13,8 +13,8 @@ spec:
             operator: NotIn
             values:
             - dss
-            - d3i00.sciclone.wm.edu
             - w07.geo.sciclone.wm.edu
+            #- d3i00.sciclone.wm.edu
   volumes:
     - name: home-volume
       persistentVolumeClaim:
@@ -24,7 +24,7 @@ spec:
       image: "condaforge/mambaforge"
       resources:
         requests:
-          ephemeral-storage: "10Gi"
+          ephemeral-storage: "5Gi"
           memory: "32Gi"
           cpu: "4"
       volumeMounts:
