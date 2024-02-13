@@ -2,7 +2,7 @@ import requests
 import geopandas as gpd
 import shutil
 from pyrosm import OSM, get_data
-from datetime import datetime
+from datetime import datetime, timedelta
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import traceback
@@ -29,6 +29,8 @@ TMPBASEPATH = "/kube/home/tmp/globalRoads"
 OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/kube/home/logs/globalRoads"
 PROCESSES = 1
+#How many days before we try to redownload the OSM data?
+STALE_DAYS = 3
 
 def pLogger(id, type, message, path=LOGBASEPATH):
     with open(path + "/" + str(id) + ".log", "a") as f:
@@ -104,6 +106,7 @@ def filtergeoJson_createParquet(jobID):
     try:
         parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
         pLogger(jobID, "INFO", "Beginning geoJSON-based Filtering")
+        TMPPATH = TMPBASEPATH + "/" + str(jobID)
         geoJSONPath = TMPPATH + "/" + str(jobID) + ".geojson"
 
         jsonOSM = gpd.read_file(geoJSONPath)
@@ -130,6 +133,13 @@ def download_feature(url, jobID):
     """
     TMPPATH = TMPBASEPATH + "/" + str(jobID)
     FILEPATH = TMPPATH + "/" + str(jobID) + ".osm.pbf"
+
+    if os.path.exists(FILEPATH):
+        file_mod_time = datetime.fromtimestamp(os.path.getmtime(FILEPATH))
+        if datetime.now() - file_mod_time < timedelta(days=STALE_DAYS):
+            pLogger(jobID, "INFO", "File is up-to-date. Skipping download.")
+            return "SKIP"
+
     check_and_recreate_folder(TMPPATH)
     
     try:
