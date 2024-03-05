@@ -27,11 +27,11 @@ spec:
       volumeMounts:
         - name: osm-data-volume
           mountPath: "/data/"
-          subPath: git/kubeApps/openrouteservice/data
+          subPath: "datafiles/globalRoads/asia/"
       command: ["/bin/bash", "-c"]
       args:
         - |
           ls /data/
-          osrm-extract -p /opt/car.lua /data/nepal-latest.osm.pbf
-          osrm-partition /data/nepal-latest.osrm
-          osrm-customize /data/nepal-latest.osrm
+          osrm-extract -p /opt/car.lua /data/asia.osm.pbf
+          osrm-partition /data/asia.osrm
+          osrm-customize /data/asia.osrm

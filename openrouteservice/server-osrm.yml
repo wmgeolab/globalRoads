@@ -41,20 +41,20 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: "12Gi"
-            cpu: "1"
+            memory: "64Gi"
+            cpu: "2"
           limits:
-            memory: "12Gi"
-            cpu: "1"
+            memory: "64Gi"
+            cpu: "2"
         command: ["/bin/sh", "-c"]
-        args: ["osrm-routed --algorithm mld /data/nepal-latest.osm.pbf"]
+        args: ["osrm-routed --algorithm mld /data/asia.osm.pbf"]
         ports:
         - containerPort: 5000
         volumeMounts:
         - name: osm-data-volume
           readOnly:  true
           mountPath: "/data/"
-          subPath: git/kubeApps/openrouteservice/data
+          subPath: "datafiles/globalRoads/asia/"
       volumes:
       - name: osm-data-volume
         persistentVolumeClaim:
