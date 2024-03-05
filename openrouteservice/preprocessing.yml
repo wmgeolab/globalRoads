@@ -22,7 +22,7 @@ spec:
       image: ghcr.io/project-osrm/osrm-backend:latest
       resources:
         requests:
-          memory: "8Gi"
+          memory: "64Gi"
           cpu: "2"
       volumeMounts:
         - name: osm-data-volume
