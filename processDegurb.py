@@ -119,9 +119,13 @@ def processPoints(pts):
             print(url)
 
             result = osm_request(url, RETRIES, RESPONSEWAIT)
+            print(result)
 
             duration = result["routes"][0]["duration"]
             distance = result["routes"][0]["distance"]
+
+            if(duration == 0):
+                duration = 9999999.0
 
             if(float(mindur) > float(duration)):
                 mindur = float(duration)
@@ -135,7 +139,6 @@ def processPoints(pts):
                 results["dest_latitude"] = float(to_lat)
                 results["dest_longitude"] = float(to_lon)
                 results["dest_ID"] = row_urbcent["ID_HDC_G0"]
-            break
         distanceResults.append(results)
                                   
     return(distanceResults)
