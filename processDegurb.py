@@ -85,7 +85,7 @@ with open("./sourceData/nepalDegurbaPoints.geojson", 'r') as f:
     degUrbPts = geopandas.read_file(f)
 
 degUrbPts.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
-degUrbPts.to_crs(epsg=4326)
+degUrbPts = degUrbPts.to_crs(epsg=4326)
 degUrbExampleSubset = degUrbPts.head()
 
 processPoints(degUrbExampleSubset)
