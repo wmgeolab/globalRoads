@@ -61,10 +61,13 @@ def insert_results(conn, results):
 def processPoints(pts):
     with open("./sourceData/urbanCentroids.geojson", "r") as u:
         urbanPoints = geopandas.read_file(u)
+    
+    urbanPoints = urbanPoints.to_crs(epsg=4326)
 
     for index, row in pts.iterrows():
         print(index)
-        print(row)
+        print(row.geometry.x)
+        print(row.geometry.y)
         print("-----")
 
     results = {}
@@ -85,6 +88,6 @@ degUrbExampleSubset = degUrbPts.head()
 
 processPoints(degUrbExampleSubset)
 
-conn = connect_with_retry(mysql_config_db)
-insert_results(conn, processPoints("test"))
-conn.close()
+#conn = connect_with_retry(mysql_config_db)
+#insert_results(conn, processPoints("test"))
+#conn.close()
