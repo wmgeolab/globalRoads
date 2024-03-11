@@ -10,7 +10,15 @@ mysql_config_db = {
     'db': 'globalroads'
 }
 
+logging_path = "/kube/home/logs/globalRoads"
 #table: roadresults
+
+def kLog(type, message, logPath=logging_path):
+    podName = os.getenv('POD_NAME')
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    with open(logPath + str(podName) + ".log", "a") as f:
+        f.write(str(type) + ": " + str(timestamp) + " --- " + str(message) + "\n")
 
 with open("./sourceData/nepalDegurbaPoints.geojson", 'r') as f:
     degUrbPts = geopandas.read_file(f)
@@ -66,5 +74,6 @@ def processPoints(pt):
                                   
     return(results)
 
-
+conn = connect_with_retry(mysql_config_db)
 insert_results(conn, processPoints("test"))
+conn.close()
