@@ -86,6 +86,8 @@ def osm_request(url, retries, base_wait=1):
     return None  # All retries failed
 
 def processPoints(pts):
+    print("Processing " + str(len(pts)) + " total locations.")
+    total = 0
     with open("./sourceData/urbanCentroids.geojson", "r") as u:
         urbanPoints = geopandas.read_file(u)
     urbanPoints.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
@@ -96,6 +98,8 @@ def processPoints(pts):
 
     mindur = 9999999.0
     for index, row in pts.iterrows():
+        print("Starting job " + str(total) + " of " + str(len(pts)))
+        total = total + 1
         results = {}
 
         #Identify 5 closest urban areas as the crow flies.
@@ -116,10 +120,7 @@ def processPoints(pts):
             to_lon = row_urbcent.geometry.x
 
             url = "http://osrm:80/route/v1/driving/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon)
-            print(url)
-
             result = osm_request(url, RETRIES, RESPONSEWAIT)
-            print(result)
 
             duration = result["routes"][0]["duration"]
             distance = result["routes"][0]["distance"]
@@ -138,7 +139,7 @@ def processPoints(pts):
                 results["traveltime"] = duration
                 results["dest_latitude"] = float(to_lat)
                 results["dest_longitude"] = float(to_lon)
-                results["dest_ID"] = row_urbcent["ID_HDC_G0"]
+                results["dest_ID"] = row_urbcent["UID"]
         distanceResults.append(results)
                                   
     return(distanceResults)
