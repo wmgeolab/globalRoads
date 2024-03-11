@@ -22,7 +22,7 @@ def exponential_backoff_request(url, retries, base_wait=1):
     return None  # All retries failed
 
 # Define your URL and number of retries here
-url = "http://osrm/route/v1/driving/27.718107,85.317312;27.706190,85.316324"
+url = "http://osrm:80/route/v1/driving/27.718107,85.317312;27.706190,85.316324"
 retries = 5  # Set the number of retries
 base_wait = 1  # Set the base wait time in seconds
 
