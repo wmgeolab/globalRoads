@@ -98,7 +98,7 @@ def processPoints(pts, conn):
 
     
     for index, row in pts.iterrows():
-        print("Starting job " + str(total) + " of " + str(len(pts)))
+        print("Starting job " + str(total+1) + " of " + str(len(pts)))
         mindur = 9999999.0
         total = total + 1
         results = {}
@@ -138,14 +138,22 @@ def processPoints(pts, conn):
                 mindur = float(duration)
                 results["latitude"] = float(from_lat)
                 results["longitude"] = float(from_lon)
-                results["name"] = row_urbcent["CIESIN_NAME_TL"]
-                results["total_population"] = int(row_urbcent["Total_Pop"])
-                results["urbanID"] = row["PID"]
-                results["distance"] = distance
-                results["traveltime"] = duration
+                results["name"] = str(row_urbcent["CIESIN_NAME_TL"])
+                try:
+                    results["total_population"] = int(row_urbcent["Total_Pop"])
+                except:
+                    results["total_population"] = int(0)
+                    results["urbanID"] = row["PID"]
+                try:
+                    results["distance"] = float(distance)
+                    results["traveltime"] = float(duration)
+                except:
+                    results["distance"] = 99999.0
+                    results["traveltime"] = 99999.0
+            
                 results["dest_latitude"] = float(to_lat)
                 results["dest_longitude"] = float(to_lon)
-                results["dest_ID"] = row_urbcent["UID"]
+                results["dest_ID"] = str(row_urbcent["UID"])
         distanceResults.append(results)
 
         #Commit to MySQL every 50 observations.
@@ -155,7 +163,8 @@ def processPoints(pts, conn):
                     insert_results(conn, r)
                 except Exception as e: 
                     print("CRITICAL FAILURE: SQL Insert failed: " + str(e))
-            distanceResults= {}
+                    print(r)
+            distanceResults= []
                                   
     return(distanceResults)
 
