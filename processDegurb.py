@@ -63,6 +63,7 @@ def processPoints(pts):
         urbanPoints = geopandas.read_file(u)
     
     urbanPoints = urbanPoints.to_crs(epsg=4326)
+    pts = pts.to_crs(epsg=4326)
 
     for index, row in pts.iterrows():
         print(index)
