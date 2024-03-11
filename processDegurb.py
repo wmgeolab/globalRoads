@@ -22,9 +22,6 @@ def kLog(type, message, logPath=logging_path):
     with open(logPath + str(podName) + ".log", "a") as f:
         f.write(str(type) + ": " + str(timestamp) + " --- " + str(message) + "\n")
 
-with open("./sourceData/nepalDegurbaPoints.geojson", 'r') as f:
-    degUrbPts = geopandas.read_file(f)
-
 def connect_with_retry(config, max_attempts=120, delay_seconds=5):
     """Attempt to connect to MySQL with retries."""
     attempt = 0
@@ -61,10 +58,15 @@ def insert_results(conn, results):
         print(f"Error: {e}")
         conn.rollback()  # Rollback in case of error
 
-def processPoints(pt):
+def processPoints(pts):
     with open("./sourceData/urbanCentroids.geojson", "r") as u:
         urbanPoints = geopandas.read_file(u)
-    
+
+    for index, row in pts.iterrows():
+        print(index)
+        print(row)
+        print("-----")
+
     results = {}
     results["latitude"] = 10.0
     results["longitude"] = 5.0
@@ -75,6 +77,13 @@ def processPoints(pt):
     results["traveltime"] = 1049.0
                                   
     return(results)
+
+with open("./sourceData/nepalDegurbaPoints.geojson", 'r') as f:
+    degUrbPts = geopandas.read_file(f)
+
+degUrbExampleSubset = degUrbPts.head()
+
+processPoints(degUrbExampleSubset)
 
 conn = connect_with_retry(mysql_config_db)
 insert_results(conn, processPoints("test"))
