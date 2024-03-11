@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import sys
 import requests
+import time
 
 
 mysql_config_db = {
@@ -84,7 +85,7 @@ def osm_request(url, retries, base_wait=1):
 def processPoints(pts):
     with open("./sourceData/urbanCentroids.geojson", "r") as u:
         urbanPoints = geopandas.read_file(u)
-    
+    urbanPoints.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
     urbanPoints = urbanPoints.to_crs(epsg=4326)
     mindist = 9999999.0
     for index, row in pts.iterrows():
