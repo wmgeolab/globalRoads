@@ -91,8 +91,13 @@ def processPoints(pts):
     urbanPoints.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
     urbanPoints = urbanPoints.to_crs(epsg=4326)
     
+    #List to hold all results
+    distanceResults = []
+
     mindur = 9999999.0
     for index, row in pts.iterrows():
+        results = {}
+
         print(index)
         print(row.geometry.x)
         print(row.geometry.y)
@@ -126,11 +131,10 @@ def processPoints(pts):
                 results["dest_latitude"] = float(to_lat)
                 results["dest_longitude"] = float(to_lon)
                 results["dest_ID"] = row_urbcent["ID_HDC_G0"]
-
             break
-
+        distanceResults.append(results)
                                   
-    return(results)
+    return(distanceResults)
 
 with open("./sourceData/nepalDegurbaPoints.geojson", 'r') as f:
     degUrbPts = geopandas.read_file(f)
@@ -139,7 +143,7 @@ degUrbPts.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
 degUrbPts = degUrbPts.to_crs(epsg=4326)
 degUrbExampleSubset = degUrbPts.head()
 
-processPoints(degUrbExampleSubset)
+print(processPoints(degUrbExampleSubset))
 
 #conn = connect_with_retry(mysql_config_db)
 #insert_results(conn, processPoints("test"))
