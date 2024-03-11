@@ -176,7 +176,8 @@ with open("./sourceData/nepalDegurbaPoints.geojson", 'r') as f:
 
 degUrbPts.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
 degUrbPts = degUrbPts.to_crs(epsg=4326)
-degUrbExampleSubset = degUrbPts.head()
+#Subset for dev
+#degUrbExampleSubset = degUrbPts.head()
 
 conn = connect_with_retry(mysql_config_db)
 print(processPoints(degUrbExampleSubset, conn))
