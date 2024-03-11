@@ -137,24 +137,24 @@ def processPoints(pts, conn):
 
             if(float(mindur) > float(duration)):
                 mindur = float(duration)
-                results["latitude"] = float(from_lat)
-                results["longitude"] = float(from_lon)
+                results["latitude"] = str(from_lat)
+                results["longitude"] = str(from_lon)
                 results["name"] = str(row_urbcent["CIESIN_NAME_TL"])
                 try:
-                    results["total_population"] = int(row_urbcent["Total_Pop"])
+                    results["total_population"] = str(row_urbcent["Total_Pop"])
                 except:
-                    results["total_population"] = int(0)
+                    results["total_population"] = str(0)
                 
-                results["urbanID"] = int(row["PID"])
+                results["urbanID"] = str(row["PID"])
                 try:
-                    results["distance"] = float(distance)
-                    results["traveltime"] = float(duration)
+                    results["distance"] = str(distance)
+                    results["traveltime"] = str(duration)
                 except:
-                    results["distance"] = 99999.0
-                    results["traveltime"] = 99999.0
+                    results["distance"] = "99999.0"
+                    results["traveltime"] = "99999.0"
             
-                results["dest_latitude"] = float(to_lat)
-                results["dest_longitude"] = float(to_lon)
+                results["dest_latitude"] = str(to_lat)
+                results["dest_longitude"] = str(to_lon)
                 results["dest_ID"] = str(row_urbcent["UID"])
         distanceResults.append(results)
 
