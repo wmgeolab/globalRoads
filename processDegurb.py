@@ -3,6 +3,7 @@ import pymysql
 import os
 from datetime import datetime
 import sys
+import requests
 
 
 mysql_config_db = {
