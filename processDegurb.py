@@ -45,7 +45,7 @@ def connect_with_retry(config, max_attempts=120, delay_seconds=5):
 
 def insert_results(conn, results):
     # SQL statement for inserting data
-    query = """INSERT INTO roadresults (latitude, longitude, name, total_population, urbanID, distance, traveltime) 
+    query = """INSERT INTO roadresults (latitude, longitude, name, total_population, urbanID, distance, traveltime,dest_latitude,dest_longitude,dest_ID) 
                VALUES (%s, %s, %s, %s, %s, %s, %s)"""
     
     try:
@@ -57,7 +57,10 @@ def insert_results(conn, results):
                                    results["total_population"], 
                                    results["urbanID"],
                                    results["distance"],
-                                   results["traveltime"]))
+                                   results["traveltime"],
+                                   results["dest_latitude"],
+                                   results["dest_longitude"],
+                                   results["dest_ID"]))
         # Commit the changes to the database
         conn.commit()
     except pymysql.Error as e:
@@ -87,7 +90,8 @@ def processPoints(pts):
         urbanPoints = geopandas.read_file(u)
     urbanPoints.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
     urbanPoints = urbanPoints.to_crs(epsg=4326)
-    mindist = 9999999.0
+    
+    mindur = 9999999.0
     for index, row in pts.iterrows():
         print(index)
         print(row.geometry.x)
@@ -105,17 +109,26 @@ def processPoints(pts):
             print(url)
 
             result = osm_request(url, RETRIES, RESPONSEWAIT)
-            print(result)
-            sys.exit()
 
-    results = {}
-    results["latitude"] = 10.0
-    results["longitude"] = 5.0
-    results["name"] = "Test"
-    results["total_population"] = 10049
-    results["urbanID"] = 10
-    results["distance"] = 10039.23
-    results["traveltime"] = 1049.0
+            duration = result["routes"][0]["duration"]
+            distance = result["routes"][0]["distance"]
+
+            if(float(mindur) > float(duration)):
+                print("New min found!")
+                mindur = float(duration)
+                results["latitude"] = float(from_lat)
+                results["longitude"] = float(from_lon)
+                results["name"] = row_urbcent["CIESIN_NAME_TL"]
+                results["total_population"] = int(row_urbcent["Total_Pop"])
+                results["urbanID"] = row["PID"]
+                results["distance"] = distance
+                results["traveltime"] = duration
+                results["dest_latitude"] = float(to_lat)
+                results["dest_longitude"] = float(to_lon)
+                results["dest_ID"] = row_urbcent["ID_HDC_G0"]
+
+            break
+
                                   
     return(results)
 
