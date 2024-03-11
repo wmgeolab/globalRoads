@@ -180,5 +180,5 @@ degUrbPts = degUrbPts.to_crs(epsg=4326)
 #degUrbExampleSubset = degUrbPts.head()
 
 conn = connect_with_retry(mysql_config_db)
-print(processPoints(degUrbExampleSubset, conn))
+print(processPoints(degUrbPts, conn))
 conn.close()
