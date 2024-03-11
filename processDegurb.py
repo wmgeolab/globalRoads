@@ -6,6 +6,7 @@ import sys
 import requests
 import time
 import warnings
+import traceback 
 
 mysql_config_db = {
     'host': 'mariadb-service',  # Your MySQL host/service
@@ -143,7 +144,8 @@ def processPoints(pts, conn):
                     results["total_population"] = int(row_urbcent["Total_Pop"])
                 except:
                     results["total_population"] = int(0)
-                    results["urbanID"] = row["PID"]
+                
+                results["urbanID"] = int(row["PID"])
                 try:
                     results["distance"] = float(distance)
                     results["traveltime"] = float(duration)
@@ -164,6 +166,7 @@ def processPoints(pts, conn):
                 except Exception as e: 
                     print("CRITICAL FAILURE: SQL Insert failed: " + str(e))
                     print(r)
+                    traceback.print_exc()
             distanceResults= []
                                   
     return(distanceResults)
