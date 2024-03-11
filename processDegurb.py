@@ -85,7 +85,7 @@ def osm_request(url, retries, base_wait=1):
     
     return None  # All retries failed
 
-def processPoints(pts):
+def processPoints(pts, conn):
     print("Processing " + str(len(pts)) + " total locations.")
     total = 0
     with open("./sourceData/urbanCentroids.geojson", "r") as u:
@@ -147,6 +147,15 @@ def processPoints(pts):
                 results["dest_longitude"] = float(to_lon)
                 results["dest_ID"] = row_urbcent["UID"]
         distanceResults.append(results)
+
+        #Commit to MySQL every 50 observations.
+        if(len(distanceResults) >= 50):
+            for r in distanceResults:
+                try:
+                    insert_results(conn, r)
+                except Exception as e: 
+                    print("CRITICAL FAILURE: SQL Insert failed: " + str(e))
+            distanceResults= {}
                                   
     return(distanceResults)
 
@@ -157,8 +166,6 @@ degUrbPts.crs = {'proj': 'moll', 'lon_0': 0, 'datum': 'WGS84'}
 degUrbPts = degUrbPts.to_crs(epsg=4326)
 degUrbExampleSubset = degUrbPts.head()
 
-print(processPoints(degUrbExampleSubset))
-
-#conn = connect_with_retry(mysql_config_db)
-#insert_results(conn, processPoints("test"))
-#conn.close()
+conn = connect_with_retry(mysql_config_db)
+print(processPoints(degUrbExampleSubset, conn))
+conn.close()
