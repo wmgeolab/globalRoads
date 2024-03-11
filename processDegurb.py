@@ -46,8 +46,8 @@ def connect_with_retry(config, max_attempts=120, delay_seconds=5):
 
 def insert_results(conn, results):
     # SQL statement for inserting data
-    query = """INSERT INTO roadresults (latitude, longitude, name, total_population, urbanID, distance, traveltime,dest_latitude,dest_longitude,dest_ID) 
-               VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+    query = """INSERT INTO roadresults (latitude, longitude, name, total_population, urbanID, distance, traveltime, dest_latitude, dest_longitude, dest_ID) 
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     
     try:
         with conn.cursor() as cursor:
