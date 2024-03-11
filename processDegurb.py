@@ -5,7 +5,7 @@ from datetime import datetime
 import sys
 import requests
 import time
-
+import warnings
 
 mysql_config_db = {
     'host': 'mariadb-service',  # Your MySQL host/service
@@ -96,9 +96,10 @@ def processPoints(pts):
     #List to hold all results
     distanceResults = []
 
-    mindur = 9999999.0
+    
     for index, row in pts.iterrows():
         print("Starting job " + str(total) + " of " + str(len(pts)))
+        mindur = 9999999.0
         total = total + 1
         results = {}
 
@@ -108,7 +109,12 @@ def processPoints(pts):
         
         #Reset from any past runs
         urbanPoints["distance"] = 999999999999
-        urbanPoints["distance"] = urbanPoints.geometry.distance(row.geometry)
+        #Ignoring the projection errors for distance calculations - we're just filtering here, so 
+        #don't need perfect accuracy.  The actual distances we use will be calculated by the OSM routing
+        #server in the next step.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            urbanPoints["distance"] = urbanPoints.geometry.distance(row.geometry)
 
         closestPts = urbanPoints.nsmallest(5, 'distance')
         
@@ -120,10 +126,10 @@ def processPoints(pts):
             to_lon = row_urbcent.geometry.x
 
             url = "http://osrm:80/route/v1/driving/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon)
-            result = osm_request(url, RETRIES, RESPONSEWAIT)
+            query = osm_request(url, RETRIES, RESPONSEWAIT)
 
-            duration = result["routes"][0]["duration"]
-            distance = result["routes"][0]["distance"]
+            duration = query["routes"][0]["duration"]
+            distance = query["routes"][0]["distance"]
 
             if(duration == 0):
                 duration = 9999999.0
