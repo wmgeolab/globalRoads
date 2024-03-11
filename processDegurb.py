@@ -98,15 +98,20 @@ def processPoints(pts):
     for index, row in pts.iterrows():
         results = {}
 
-        print(index)
-        print(row.geometry.x)
-        print(row.geometry.y)
-        print("-----")
+        #Identify 5 closest urban areas as the crow flies.
+        #We'll then calculate driving duration for all of them,
+        #and select the closest as our match.
+        
+        #Reset from any past runs
+        urbanPoints["distance"] = 999999999999
+        urbanPoints["distance"] = urbanPoints.geometry.distance(row.geometry)
 
+        closestPts = urbanPoints.nsmallest(5, 'distance')
+        
         from_lat = row.geometry.y
         from_lon = row.geometry.x
 
-        for index_urbcent, row_urbcent in urbanPoints.iterrows():
+        for index_urbcent, row_urbcent in closestPts.iterrows():
             to_lat = row_urbcent.geometry.y
             to_lon = row_urbcent.geometry.x
 
@@ -119,7 +124,6 @@ def processPoints(pts):
             distance = result["routes"][0]["distance"]
 
             if(float(mindur) > float(duration)):
-                print("New min found!")
                 mindur = float(duration)
                 results["latitude"] = float(from_lat)
                 results["longitude"] = float(from_lon)
