@@ -149,7 +149,7 @@ def processPoints(pts, conn):
         distanceResults.append(results)
 
         #Commit to MySQL every 50 observations.
-        if(len(distanceResults) >= 50):
+        if(len(distanceResults) >= 2):
             for r in distanceResults:
                 try:
                     insert_results(conn, r)
