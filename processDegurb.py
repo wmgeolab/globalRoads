@@ -158,6 +158,7 @@ def processPoints(pts, conn):
                 results["dest_ID"] = str(row_urbcent["UID"])
         if(results == {}):
             print("Error in calculating route for " + str(from_lat) + ";" + str(from_lon) + ": " + str(query))
+            print("Request: " + str(url))
         else:
             distanceResults.append(results)
 
