@@ -119,12 +119,12 @@ def processPoints(pts, conn):
 
         closestPts = urbanPoints.nsmallest(5, 'distance')
         
-        from_lat = row.geometry.y
-        from_lon = row.geometry.x
+        from_lon = row.geometry.y
+        from_lat = row.geometry.x
 
         for index_urbcent, row_urbcent in closestPts.iterrows():
-            to_lat = row_urbcent.geometry.y
-            to_lon = row_urbcent.geometry.x
+            to_lon = row_urbcent.geometry.y
+            to_lat = row_urbcent.geometry.x
 
             url = "http://osrm:80/route/v1/car/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon)
             query = osm_request(url, RETRIES, RESPONSEWAIT)
