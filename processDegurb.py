@@ -100,7 +100,7 @@ def processPoints(pts, conn):
     
     for index, row in pts.iterrows():
         print("Starting job " + str(total+1) + " of " + str(len(pts)))
-        mindur = 9999999.0
+        mindist = 9999999999.0
         total = total + 1
         results = {}
 
@@ -132,11 +132,11 @@ def processPoints(pts, conn):
             duration = query["routes"][0]["duration"]
             distance = query["routes"][0]["distance"]
 
-            if(duration == 0):
-                duration = 9999999.0
+            if(distance == 0):
+                distance = 9999999999.0
 
-            if(float(mindur) > float(duration)):
-                mindur = float(duration)
+            if(float(mindist) > float(distance)):
+                mindist = float(distance)
                 results["latitude"] = str(from_lat)
                 results["longitude"] = str(from_lon)
                 results["name"] = str(row_urbcent["CIESIN_NAME_TL"])
