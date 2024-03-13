@@ -126,7 +126,7 @@ def processPoints(pts, conn):
             to_lat = row_urbcent.geometry.y
             to_lon = row_urbcent.geometry.x
 
-            url = "http://osrm:80/route/v1/driving/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon)
+            url = "http://osrm:80/route/v1/car/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon)
             query = osm_request(url, RETRIES, RESPONSEWAIT)
 
             duration = query["routes"][0]["duration"]
@@ -156,7 +156,10 @@ def processPoints(pts, conn):
                 results["dest_latitude"] = str(to_lat)
                 results["dest_longitude"] = str(to_lon)
                 results["dest_ID"] = str(row_urbcent["UID"])
-        distanceResults.append(results)
+        if(results == {}):
+            print("Error in calculating route for " + str(from_lat) + ";" + str(from_lon) + ": " + str(query))
+        else:
+            distanceResults.append(results)
 
         #Commit to MySQL every 50 observations.
         if(len(distanceResults) >= 2):
