@@ -139,6 +139,7 @@ def processPoints(pts, conn):
 
             duration = dur
             distance = dist
+            print(distance)
 
             if(distance == 0):
                 distance = 9999999999.0
@@ -172,7 +173,7 @@ def processPoints(pts, conn):
 
         sys.exit()
 
-        #Commit to MySQL every 50 observations.
+        #Commit to MySQL every N observations.
         if(len(distanceResults) >= 2):
             for r in distanceResults:
                 try:
