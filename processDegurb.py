@@ -126,11 +126,18 @@ def processPoints(pts, conn):
             to_lon = row_urbcent.geometry.y
             to_lat = row_urbcent.geometry.x
 
-            url = "http://osrm:80/route/v1/car/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon)
+            url = "http://osrm:80/route/v1/driving/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon) + "?overview=false&steps=true"
             query = osm_request(url, RETRIES, RESPONSEWAIT)
 
-            duration = query["routes"][0]["duration"]
-            distance = query["routes"][0]["distance"]
+            dist = 0
+            dur = 0
+            for i in query["routes"][0]["legs"][0]["steps"]:
+                #print(str(i["name"]) + ", " + str(i["distance"]) + "," + str(i["maneuver"]["type"]))
+                dist = dist + float(i["distance"])
+                dur = dur + float(i["duration"])
+
+            duration = dur
+            distance = dist
 
             if(distance == 0):
                 distance = 9999999999.0
