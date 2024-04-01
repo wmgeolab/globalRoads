@@ -171,7 +171,7 @@ def processPoints(pts, conn):
         else:
             distanceResults.append(results)
 
-        sys.exit()
+        #sys.exit()
 
         #Commit to MySQL every N observations.
         if(len(distanceResults) >= 2):
