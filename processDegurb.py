@@ -117,7 +117,7 @@ def processPoints(pts, conn):
             warnings.simplefilter("ignore", UserWarning)
             urbanPoints["distance"] = urbanPoints.geometry.distance(row.geometry)
 
-        closestPts = urbanPoints.nsmallest(5, 'distance')
+        closestPts = urbanPoints.nsmallest(20, 'distance')
         
         from_lon = row.geometry.y
         from_lat = row.geometry.x
@@ -139,7 +139,7 @@ def processPoints(pts, conn):
 
             duration = dur
             distance = dist
-            print(distance)
+
 
             if(distance == 0):
                 distance = 9999999999.0
@@ -169,6 +169,8 @@ def processPoints(pts, conn):
             print("Error in calculating route for " + str(from_lat) + ";" + str(from_lon) + ": " + str(query))
             print("Request: " + str(url))
         else:
+            print(results)
+            print("---")
             distanceResults.append(results)
 
         #sys.exit()
