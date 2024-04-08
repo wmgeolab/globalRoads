@@ -128,7 +128,7 @@ def processPoints(pts, conn):
             to_lat = row_urbcent.geometry.x
 
             url = "http://osrm:80/route/v1/driving/" + str(from_lat) + "," + str(from_lon) + ";" + str(to_lat) + "," + str(to_lon) + "?overview=false&steps=true"
-            print(url)
+            #print(url)
             query = osm_request(url, RETRIES, RESPONSEWAIT)
 
             dist = 0
