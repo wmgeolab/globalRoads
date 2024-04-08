@@ -104,9 +104,7 @@ def processPoints(pts, conn):
         total = total + 1
         results = {}
 
-        #Identify 5 closest urban areas as the crow flies.
-        #We'll then calculate driving duration for all of them,
-        #and select the closest as our match.
+ 
         
         #Reset from any past runs
         urbanPoints["distance"] = 999999999999
@@ -117,6 +115,9 @@ def processPoints(pts, conn):
             warnings.simplefilter("ignore", UserWarning)
             urbanPoints["distance"] = urbanPoints.geometry.distance(row.geometry)
 
+        #Identify 20 closest urban areas as the crow flies.
+        #We'll then calculate driving duration for all of them,
+        #and select the closest as our match.
         closestPts = urbanPoints.nsmallest(20, 'distance')
         
         from_lon = row.geometry.y
@@ -136,6 +137,23 @@ def processPoints(pts, conn):
                 #print(str(i["name"]) + ", " + str(i["distance"]) + "," + str(i["maneuver"]["type"]))
                 dist = dist + float(i["distance"])
                 dur = dur + float(i["duration"])
+
+            #Add in the distances and estimate the durations from the waypoints.
+            #These are cases in which no road is known, we assume an average of 20km/hour
+            #In these cases.
+            from_waypoint_dist = query["waypoints"][0]["distance"]
+            to_waypoint_dist = query["waypoints"][1]["distance"]
+
+            #Distances are in meters.
+            #Total distance / 1000 (kilometers)
+            #/20 = duration in hours
+            #*60*60 = duration in seconds
+            from_waypoint_time = (from_waypoint_dist / 1000 / 20) * 60 * 60
+            to_waypoint_time = (to_waypoint_dist / 1000 / 20) * 60 * 60
+
+            dist = dist + from_waypoint_dist + to_waypoint_dist
+
+            dur = dur + from_waypoint_time + to_waypoint_time
 
             duration = dur
             distance = dist
