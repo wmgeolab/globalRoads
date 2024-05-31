@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: osrm
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+  selector:
+    app: osrm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: osrm
+  labels:
+    app: osrm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: osrm
+  template:
+    metadata:
+      labels:
+        app: osrm
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - dss
+      containers:
+      - name: osrm
+        image: ghcr.io/project-osrm/osrm-backend:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "64Gi"
+            cpu: "32"
+          limits:
+            memory: "64Gi"
+            cpu: "32"
+        command: ["/bin/sh", "-c"]
+        args: ["osrm-routed --algorithm mld /data/asia.osm.pbf"]
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: osm-data-volume
+          readOnly:  true
+          mountPath: "/data/"
+          subPath: "datafiles/globalRoads/asia/"
+      volumes:
+      - name: osm-data-volume
+        persistentVolumeClaim:
+          claimName: dsmillerrunfol-rwm

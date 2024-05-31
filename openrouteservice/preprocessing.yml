@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: osm-preprocessing
+spec:
+  restartPolicy: Never
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: NotIn
+            values:
+            - dss
+  volumes:
+    - name: osm-data-volume
+      persistentVolumeClaim:
+        claimName: dsmillerrunfol-rwm
+  containers:
+    - name: osmr-preprocessing
+      image: ghcr.io/project-osrm/osrm-backend:latest
+      resources:
+        requests:
+          memory: "64Gi"
+          cpu: "32"
+      volumeMounts:
+        - name: osm-data-volume
+          mountPath: "/data/"
+          subPath: "datafiles/globalRoads/asia/"
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          ls /data/
+          osrm-extract -p /opt/car.lua /data/asia.osm.pbf
+          osrm-partition /data/asia.osrm
+          osrm-customize /data/asia.osrm
