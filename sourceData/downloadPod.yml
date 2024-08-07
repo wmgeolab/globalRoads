@@ -4,21 +4,14 @@ metadata:
   name: data-retrieval-osm
 spec:
   restartPolicy: Never
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: NotIn
-            values:
-            - dss
-            - w07.geo.sciclone.wm.edu
-            #- d3i00.sciclone.wm.edu
+  securityContext:
+    runAsUser: 248465
+    runAsGroup: 9915
   volumes:
-    - name: home-volume
-      persistentVolumeClaim:
-        claimName: dsmillerrunfol-rwm
+    - name: geograd
+      nfs:
+        server: 128.239.59.144
+        path: /sciclone/geograd
   containers:
     - name: conda-container
       image: "condaforge/mambaforge"
@@ -28,12 +21,12 @@ spec:
           memory: "32Gi"
           cpu: "4"
       volumeMounts:
-        - name: home-volume
-          mountPath: /kube/home/
+        - name: geograd
+          mountPath: /sciclone/geograd/
       command: ["/bin/bash", "-c"]
       args:
         - |
           ENV_PATH="/kube/home/.envs/globalRoads"
           source activate $ENV_PATH
-          python /kube/home/git/globalRoads/sourceData/retrieveData.py
+          #python /kube/home/git/globalRoads/sourceData/retrieveData.py
           #sleep 99999
