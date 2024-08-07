@@ -22,6 +22,7 @@ LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf",
 
 TMPBASEPATH = "/tmp"
 OUTPUTPATH = "/sciclone/geograd/_deployed/globalRoads/sourceData/parquet"
+ORIGINALPATH = "/sciclone/geograd/_deployed/globalRoads/sourceData/original"
 LOGBASEPATH = "/sciclone/geograd/_deployed/globalRoads/logs"
 STALE_DAYS = 3
 
@@ -79,7 +80,7 @@ def fetch_data(url):
 @task
 def download_feature(url, jobID):
     TMPPATH = TMPBASEPATH + "/" + str(jobID)
-    FILEPATH = TMPPATH + "/" + str(jobID) + ".osm.pbf"
+    FILEPATH = ORIGINALPATH + "/" + str(jobID) + ".osm.pbf"
 
     if os.path.exists(FILEPATH):
         file_mod_time = datetime.fromtimestamp(os.path.getmtime(FILEPATH))

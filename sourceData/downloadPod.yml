@@ -27,5 +27,7 @@ spec:
       args:
         - |
           source /sciclone/geograd/_deployed/globalRoads/_venv/bin/activate
+          export TZ=EST
+          export PREFECT_HOME="/tmp"
           #python /sciclone/geograd/_deployed/globalRoads/git/globalRoads/sourceData/retrieveData.py
           sleep 99999
