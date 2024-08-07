@@ -5,7 +5,7 @@ metadata:
 spec:
   restartPolicy: Never
   securityContext:
-    runAsUser: 248465
+    runAsUser: 71032 #248465
     runAsGroup: 9915
   volumes:
     - name: geograd
