@@ -27,5 +27,5 @@ spec:
       args:
         - |
           source /sciclone/geograd/_deployed/globalRoads/_venv/bin/activate
-          #python /kube/home/git/globalRoads/sourceData/retrieveData.py
+          #python /sciclone/geograd/_deployed/globalRoads/git/globalRoads/sourceData/retrieveData.py
           sleep 99999

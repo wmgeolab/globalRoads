@@ -2,10 +2,12 @@ import requests
 import geopandas as gpd
 import shutil
 from datetime import datetime, timedelta
-from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import traceback
 import gc
+import prefect
+from prefect import task, Flow
+from prefect.executors import LocalDaskExecutor
 
 # Constants
 
@@ -19,14 +21,9 @@ LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf",
        "https://download.geofabrik.de/south-america-latest.osm.pbf"
       ]
 
-#Debug
-#LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf"]
-
 TMPBASEPATH = "/tmp"
 OUTPUTPATH = "/sciclone/geograd/_deployed/globalRoads/sourceData/parquet"
 LOGBASEPATH = "/sciclone/geograd/_deployed/globalRoads/logs"
-PROCESSES = 1
-#How many days before we try to redownload the OSM data and process the results?
 STALE_DAYS = 3
 
 def pLogger(id, type, message, path=LOGBASEPATH):
@@ -34,18 +31,8 @@ def pLogger(id, type, message, path=LOGBASEPATH):
         f.write(str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + ": (" + str(type) + ") " + str(message) + "\n")
 
 def check_and_recreate_folder(folder_path):
-    """
-    Check if a folder exists, and if it does, delete and recreate it.
-    If it doesn't exist, create it.
-
-    :param folder_path: Path to the folder.
-    """
-    # Check if the folder exists
     if os.path.exists(folder_path):
-        # If it exists, remove the folder and its contents
         shutil.rmtree(folder_path)
-    
-    # Create the folder
     os.makedirs(folder_path)
 
 def convertToGeoJSON(jobID):
@@ -60,6 +47,7 @@ def convertToGeoJSON(jobID):
     os.system(command)
     pLogger(jobID, "INFO", "geoJSON Conversion Successful")
 
+@task
 def filtergeoJson_createParquet(jobID):
     try:
         parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
@@ -84,17 +72,13 @@ def filtergeoJson_createParquet(jobID):
     except Exception as e:
         pLogger(jobID, "ERROR", str(e))
 
+@task
 def fetch_data(url):
-    """
-    Fetches and returns JSON data from the specified URL.
-    """
     response = requests.get(url)
     return response.json()
 
+@task
 def download_feature(url, jobID):
-    """
-    Downloads a layer from OSM.
-    """
     TMPPATH = TMPBASEPATH + "/" + str(jobID)
     FILEPATH = TMPPATH + "/" + str(jobID) + ".osm.pbf"
 
@@ -109,23 +93,20 @@ def download_feature(url, jobID):
     try:
         pLogger(jobID, "INFO", "Downloading: " + str(url))
         response = requests.get(url)
-        # Check if the request was successful
         if response.status_code == 200:
-            # Open a local file in binary write mode
             with open(FILEPATH, 'wb') as file:
-                # Write the content of the response to the file
                 file.write(response.content)
             pLogger(jobID, "INFO", "File downloaded.")
-            return("PASS")
+            return "PASS"
         else:
             pLogger(jobID, "CRIT", "Failed to retrieve the file. Status code: " + str(response.status_code))
-            return("FAIL")
+            return "FAIL"
     except Exception as e:
         pLogger(jobID, "CRIT", "Failed to retrieve the file with an exception. Error: " + str(e))
-        return("FAIL")
+        return "FAIL"
 
+@task
 def process_file(url, jobID):
-    # Combined function to download and convert data
     try:
         parquet_file = OUTPUTPATH + "/" + str(jobID) + ".parquet"
         if not os.path.exists(parquet_file):
@@ -136,38 +117,35 @@ def process_file(url, jobID):
                 pLogger("MASTER", "INFO", str(jobID) + " master loop moving into filtering.")
                 filtergeoJson_createParquet(jobID)
                 pLogger("MASTER", "INFO", str(jobID) + " DONE.")
-                return([jobID,"DONE"])
+                return [jobID,"DONE"]
             else:
                 pLogger("MASTER_ERROR", "CRIT", "Download failed for: " + str(jobID) + " with URL: " + str(url))
-                return([jobID,"FAIL"])
+                return [jobID,"FAIL"]
         else:
             pLogger("MASTER", "INFO", str(jobID) + " parquet file already exists. Skipping.")
-            return([jobID, "ALREADY EXISTS"])
+            return [jobID, "ALREADY EXISTS"]
     except Exception as e:
         pLogger("MASTER_ERROR", "CRIT", "The feature was unable to be processed: " + str(jobID))
         pLogger("MASTER_ERROR", "CRIT", "E: " + str(e))
         pLogger("MASTER_ERROR", "CRIT", "Trace: " + str(traceback.format_exc()))
-        return([jobID,"ERROR"])
+        return [jobID,"ERROR"]
 
-def main():
-    """
-    Main function to orchestrate the fetching and processing of data.
-    """
-    for url in LINKS:
+@task
+def process_links(urls):
+    results = []
+    for url in urls:
         jobID = url.split("/")[3].split(".")[0].split("-")[0]
         pLogger("MASTER", "INFO", "Processing: " + str(url))
-        output = process_file(url, jobID)
-        pLogger("MASTER", "INFO", "Result Completed: " + str(output))
-        del output
+        result = process_file(url, jobID)
+        pLogger("MASTER", "INFO", "Result Completed: " + str(result))
+        results.append(result)
+        del result
         gc.collect()
+    return results
 
-    # with ProcessPoolExecutor(max_workers=PROCESSES) as executor:
-    #     futures = [executor.submit(process_feature, feature) for feature in features]
-    #     for future in as_completed(futures):
-    #         result = future.result()
-    #         pLogger("MASTER", "INFO", "Result Completed: " + str(result))
+with Flow("OSM Data Processing") as flow:
+    urls = prefect.Parameter("urls", default=LINKS)
+    process_links(urls)
 
-
-if __name__ == "__main__":
-    main()
-
+flow.executor = LocalDaskExecutor()
+flow.run()
