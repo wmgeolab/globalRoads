@@ -5,9 +5,8 @@ from datetime import datetime, timedelta
 import os
 import traceback
 import gc
-import prefect
-from prefect import task, Flow
-from prefect.executors import LocalDaskExecutor
+from prefect import flow, task
+from prefect_dask import DaskTaskRunner
 
 # Constants
 
@@ -143,9 +142,9 @@ def process_links(urls):
         gc.collect()
     return results
 
-with Flow("OSM Data Processing") as flow:
-    urls = prefect.Parameter("urls", default=LINKS)
+@flow(task_runner=DaskTaskRunner())
+def osm_data_processing(urls):
     process_links(urls)
 
-flow.executor = LocalDaskExecutor()
-flow.run()
+if __name__ == "__main__":
+    osm_data_processing(LINKS)
