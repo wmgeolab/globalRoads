@@ -26,7 +26,6 @@ spec:
       command: ["/bin/bash", "-c"]
       args:
         - |
-          ENV_PATH="/kube/home/.envs/globalRoads"
-          source activate $ENV_PATH
+          source /sciclone/geograd/_deployed/globalRoads/_venv/bin/activate
           #python /kube/home/git/globalRoads/sourceData/retrieveData.py
           sleep 99999
