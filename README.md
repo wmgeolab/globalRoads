@@ -16,3 +16,17 @@ The conda environment created must include prefect; it was tested using prefect 
 You will need a pod that runs "prefect server start", and the server information for that pod.
 In that server, you need to create a work pool for the K8S nodes we'll be using.  The first time, you'll need to 
 log into the UI and setup a work pool (kubernetes?).
+
+Configuring Conda
+Because of permissions within the pod, you need to:
+export CONDA_PKGS_DIRS=/sciclone/geograd/.condacache/pkgs
+export CONDA_CACHE_DIR=/sciclone/geograd/.condacache/cache
+
+touch ~/.condarc
+echo "pkgs_dirs:
+  - /sciclone/geograd/.condacache/pkgs
+
+cache_dir: /sciclone/geograd/.condacache/cache" > ~/.condarc
+
+conda config --add pkgs_dirs /sciclone/geograd/.condacache/pkgs
+conda config --set cache_dir /sciclone/geograd/.condacache/cache

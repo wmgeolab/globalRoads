@@ -6,7 +6,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import traceback
 import gc
-import requests
 
 # Constants
 
@@ -23,9 +22,9 @@ LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf",
 #Debug
 #LINKS=["https://download.geofabrik.de/antarctica-latest.osm.pbf"]
 
-TMPBASEPATH = "/kube/home/tmp/globalRoads"
-OUTPUTPATH = "/kube/home/git/globalRoads/sourceData/parquet"
-LOGBASEPATH = "/kube/home/logs/globalRoads"
+TMPBASEPATH = "/tmp"
+OUTPUTPATH = "/sciclone/geograd/_deployed/globalRoads/sourceData/parquet"
+LOGBASEPATH = "/sciclone/geograd/_deployed/globalRoads/logs"
 PROCESSES = 1
 #How many days before we try to redownload the OSM data and process the results?
 STALE_DAYS = 3
