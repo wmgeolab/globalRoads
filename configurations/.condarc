@@ -1,4 +1,0 @@
-pkgs_dirs:
-  - /sciclone/geograd/.condacache/pkgs
-
-cache_dir: /sciclone/geograd/.condacache/cache
